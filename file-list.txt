@@ -1,0 +1,29 @@
+NUNUHA'S MINI TV - GITHUB UPLOAD FILES
+========================================
+
+Files to upload to GitHub repository:
+
+1. index.html (728 lines) - Main application
+2. logo.svg (45 lines) - App logo  
+3. manifest.json (1 line) - PWA configuration
+4. sw.js (43 lines) - Service worker
+5. README.md (151 lines) - Documentation
+6. deploy-instructions.md (124 lines) - Upload guide
+7. test.html (147 lines) - Testing page
+8. file-list.txt (this file) - File verification
+
+TOTAL: 8 files
+
+GITHUB REPOSITORY: https://github.com/synexistech/Nuha_MiniTv
+
+AFTER UPLOAD:
+- Enable GitHub Pages in Settings
+- Live URL: https://synexistech.github.io/Nuha_MiniTv/
+- Install di phone: Open URL dalam Chrome, tap "Install"
+
+PARENT CONTROLS:
+- PIN: 1234
+- Timer: 45 minutes (adjustable 15-60)
+- Emergency STOP button available
+
+ALL FILES READY FOR UPLOAD ✅

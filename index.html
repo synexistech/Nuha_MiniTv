@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuha's Mini TV</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#FFC0CB">
+    <meta name="description" content="Educational videos for babies by Ms Rachel with parental controls and screen time management.">
+    <link rel="icon" href="logo.svg" type="image/svg+xml">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Baloo 2', sans-serif;
+            background-color: #FFFDF5;
+            color: #5C5470;
+            overflow-x: hidden;
+        }
+
+        /* Color System */
+        :root {
+            --primary-pink: #FFC0CB;
+            --primary-pink-dark: #FFAFB9;
+            --primary-pink-light: #FFF0F5;
+            --accent-yellow: #FDFD96;
+            --accent-mint: #B5EAD7;
+            --accent-lavender: #C7CEEA;
+            --accent-sky: #A2D2FF;
+            --bg-page: #FFFDF5;
+            --text-primary: #5C5470;
+            --text-secondary: #A39DAE;
+            --icon-fill: #352F44;
+            --timer-full: #A8E6CF;
+            --timer-warning: #FFD3B6;
+            --stop-button: #FF6961;
+        }
+
+        /* Header with Timer */
+        .timer-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 24px;
+            background: var(--timer-full);
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+        }
+
+        .timer-header.warning {
+            background: var(--timer-warning);
+        }
+
+        .timer-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Main Container */
+        .app-container {
+            padding-top: 32px;
+            padding-bottom: 80px;
+            max-width: 768px;
+            margin: 0 auto;
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+
+        /* Home Screen */
+        .home-screen {
+            text-align: center;
+            padding: 32px 0;
+        }
+
+        .app-logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 24px;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0px 4px 8px rgba(92, 84, 112, 0.15);
+        }
+
+        .app-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .app-title {
+            font-size: 36px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 48px;
+        }
+
+        .category-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin-bottom: 48px;
+        }
+
+        .category-button {
+            display: flex;
+            align-items: center;
+            padding: 32px;
+            border-radius: 32px;
+            font-size: 24px;
+            font-weight: 500;
+            text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0px 4px 8px rgba(92, 84, 112, 0.15);
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .category-button:hover {
+            transform: scale(1.03);
+            box-shadow: 0px 8px 16px rgba(92, 84, 112, 0.2);
+        }
+
+        .category-icon {
+            width: 48px;
+            height: 48px;
+            margin-right: 24px;
+        }
+
+        .category-letters { background: var(--accent-yellow); }
+        .category-numbers { background: var(--accent-mint); }
+        .category-colors { background: var(--accent-lavender); }
+        .category-songs { background: var(--accent-sky); }
+        .category-animals { background: var(--primary-pink-light); }
+
+        /* Video Player Screen */
+        .video-screen {
+            display: none;
+            position: fixed;
+            top: 24px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-page);
+            z-index: 100;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 70%;
+            margin-bottom: 16px;
+        }
+
+        .video-player {
+            width: 100%;
+            height: 100%;
+            border-radius: 24px;
+        }
+
+        .video-controls {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .timer-display {
+            background: var(--primary-pink-light);
+            padding: 16px 24px;
+            border-radius: 24px;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .back-button {
+            position: fixed;
+            top: 40px;
+            left: 16px;
+            background: var(--accent-sky);
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 101;
+            box-shadow: 0px 4px 8px rgba(92, 84, 112, 0.15);
+        }
+
+        .emergency-stop {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--stop-button);
+            border: none;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0px 4px 8px rgba(92, 84, 112, 0.2);
+            z-index: 101;
+        }
+
+        .emergency-stop:active {
+            transform: scale(0.95);
+        }
+
+        /* Time's Up Overlay */
+        .times-up-overlay {
+            position: fixed;
+            top: 24px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--primary-pink-light);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 200;
+        }
+
+        .times-up-content {
+            text-align: center;
+            padding: 48px 32px;
+        }
+
+        .times-up-icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+        }
+
+        .times-up-title {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+        }
+
+        .times-up-message {
+            font-size: 20px;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+
+        /* Parental Controls */
+        .parent-controls {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 253, 245, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+        }
+
+        .parent-controls-content {
+            background: var(--primary-pink-light);
+            padding: 48px 32px;
+            border-radius: 32px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0px 8px 24px rgba(92, 84, 112, 0.15);
+        }
+
+        .parent-button {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--accent-lavender);
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 101;
+            box-shadow: 0px 4px 8px rgba(92, 84, 112, 0.15);
+        }
+
+        .pin-input {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin: 32px 0;
+        }
+
+        .pin-digit {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            border: 2px solid var(--primary-pink-dark);
+            font-size: 24px;
+            text-align: center;
+            font-family: 'Baloo 2', sans-serif;
+        }
+
+        .settings-panel {
+            display: none;
+            margin-top: 24px;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: var(--bg-page);
+            border-radius: 16px;
+        }
+
+        .toggle {
+            width: 60px;
+            height: 32px;
+            background: var(--text-secondary);
+            border-radius: 16px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle.active {
+            background: var(--primary-pink);
+        }
+
+        .toggle-thumb {
+            width: 28px;
+            height: 28px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: left 0.3s ease;
+        }
+
+        .toggle.active .toggle-thumb {
+            left: 30px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--text-secondary);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary-pink);
+            cursor: pointer;
+        }
+
+        @media (min-width: 768px) {
+            .app-container {
+                max-width: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Timer Header -->
+    <div class="timer-header" id="timerHeader">
+        <div class="timer-text" id="timerText">45:00 remaining</div>
+    </div>
+
+    <!-- Home Screen -->
+    <div class="home-screen" id="homeScreen">
+        <div class="app-logo">
+            <img src="logo.svg" alt="Nuha's Mini TV Logo">
+        </div>
+        <h1 class="app-title">Nuha's Mini TV</h1>
+        
+        <div class="category-grid">
+            <button class="category-button category-letters" onclick="playVideo('letters')">
+                <svg class="category-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+                Letters
+            </button>
+            
+            <button class="category-button category-numbers" onclick="playVideo('numbers')">
+                <svg class="category-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                Numbers
+            </button>
+            
+            <button class="category-button category-colors" onclick="playVideo('colors')">
+                <svg class="category-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+                Colors
+            </button>
+            
+            <button class="category-button category-songs" onclick="playVideo('songs')">
+                <svg class="category-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                </svg>
+                Songs
+            </button>
+            
+            <button class="category-button category-animals" onclick="playVideo('animals')">
+                <svg class="category-icon" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l-2 4v4c0 2.21 1.79 4 4 4s4-1.79 4-4V6l-2-4H12zM6 14c0 2.21 1.79 4 4 4s4-1.79 4-4"/>
+                </svg>
+                Animals
+            </button>
+        </div>
+    </div>
+
+    <!-- Video Player Screen -->
+    <div class="video-screen" id="videoScreen">
+        <button class="back-button" onclick="backToHome()">←</button>
+        <button class="emergency-stop" onclick="emergencyStop()">STOP</button>
+        
+        <div class="video-container">
+            <iframe 
+                id="videoPlayer" 
+                class="video-player"
+                src="" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+            </iframe>
+        </div>
+        
+        <div class="timer-display" id="timerDisplay">
+            Time Remaining: <span id="timeRemaining">45:00</span>
+        </div>
+    </div>
+
+    <!-- Time's Up Overlay -->
+    <div class="times-up-overlay" id="timesUpOverlay">
+        <div class="times-up-content">
+            <div class="times-up-icon">🌙</div>
+            <h2 class="times-up-title">Time for a break!</h2>
+            <p class="times-up-message">Great job learning! Nuha, let's take a nap now.</p>
+            <button class="category-button category-animals" onclick="resetTimer()">
+                Ready for more fun!
+            </button>
+        </div>
+    </div>
+
+    <!-- Parental Controls -->
+    <div class="parent-controls" id="parentControls">
+        <div class="parent-controls-content">
+            <h2 style="font-size: 28px; font-weight: 600; margin-bottom: 32px;">Parent Controls</h2>
+            
+            <div id="pinPanel">
+                <p style="font-size: 18px; margin-bottom: 24px;">Enter 4-digit PIN</p>
+                <div class="pin-input">
+                    <input type="password" class="pin-digit" maxlength="1" id="pin1">
+                    <input type="password" class="pin-digit" maxlength="1" id="pin2">
+                    <input type="password" class="pin-digit" maxlength="1" id="pin3">
+                    <input type="password" class="pin-digit" maxlength="1" id="pin4">
+                </div>
+                <button class="category-button category-animals" onclick="checkPin()">Enter</button>
+            </div>
+            
+            <div class="settings-panel" id="settingsPanel">
+                <div class="setting-item">
+                    <span>Screen Time Limit</span>
+                    <div style="width: 150px;">
+                        <input type="range" class="slider" id="screenTimeSlider" min="15" max="60" value="45" onchange="updateScreenTime(this.value)">
+                        <div style="text-align: center; font-size: 14px; margin-top: 8px;"><span id="screenTimeValue">45</span> min</div>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <span>Auto-play Videos</span>
+                    <div class="toggle active" onclick="toggleSetting('autoplay')">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                </div>
+                
+                <div class="setting-item">
+                    <span>Sound Lock</span>
+                    <div class="toggle" onclick="toggleSetting('soundlock')">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                </div>
+                
+                <button class="category-button category-colors" onclick="closeParentControls()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Video categories and URLs (Ms Rachel videos)
+        const videoCategories = {
+            letters: [
+                "https://www.youtube.com/embed/hTqtGJwsJVE", // Baby Learning With Ms Rachel
+                "https://www.youtube.com/embed/nnqsEUxgSBQ", // Ms Rachel & Elmo Get Ready For School
+                "https://www.youtube.com/embed/b051ktudQDQ"  // ABCs & 123s with Ms Rachel
+            ],
+            numbers: [
+                "https://www.youtube.com/embed/hOHrqPI9bVk", // Learn Numbers with Ms Rachel
+                "https://www.youtube.com/embed/ibwyHihda6A", // Baby Learning Numbers, etc.
+                "https://www.youtube.com/embed/nnqsEUxgSBQ"  // Ms Rachel & Elmo Get Ready
+            ],
+            colors: [
+                "https://www.youtube.com/embed/hOHrqPI9bVk", // Learn Colors with Ms Rachel
+                "https://www.youtube.com/embed/yBj9Qlpwjcs", // Learn Words and Colors
+                "https://www.youtube.com/embed/ibwyHihda6A"  // Baby Learning Colors
+            ],
+            songs: [
+                "https://www.youtube.com/embed/hTqtGJwsJVE", // Songs and Nursery Rhymes
+                "https://www.youtube.com/embed/b051ktudQDQ", // ABC Song with Ms Rachel
+                "https://www.youtube.com/embed/nnqsEUxgSBQ"  // Get Ready For School
+            ],
+            animals: [
+                "https://www.youtube.com/embed/yBj9Qlpwjcs", // Animals with Ms Rachel
+                "https://www.youtube.com/embed/ibwyHihda6A", // Baby Learning with Animals
+                "https://www.youtube.com/embed/hTqtGJwsJVE"  // First Words with Animals
+            ]
+        };
+
+        // App state
+        let currentCategory = '';
+        let currentVideoIndex = 0;
+        let totalTime = 45 * 60; // 45 minutes in seconds
+        let remainingTime = totalTime;
+        let timerInterval = null;
+        let parentPin = '1234'; // Default PIN (can be changed)
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            setupPinInputs();
+        });
+
+        // Video player functions
+        function playVideo(category) {
+            currentCategory = category;
+            currentVideoIndex = 0;
+            
+            document.getElementById('homeScreen').style.display = 'none';
+            document.getElementById('videoScreen').style.display = 'block';
+            
+            loadCurrentVideo();
+            startTimer();
+        }
+
+        function loadCurrentVideo() {
+            const videos = videoCategories[currentCategory];
+            const videoUrl = videos[currentVideoIndex];
+            document.getElementById('videoPlayer').src = videoUrl + "?autoplay=1&mute=0";
+        }
+
+        function nextVideo() {
+            const videos = videoCategories[currentCategory];
+            if (currentVideoIndex < videos.length - 1) {
+                currentVideoIndex++;
+                loadCurrentVideo();
+            } else {
+                // No more videos in this category
+                setTimeout(() => {
+                    backToHome();
+                }, 2000);
+            }
+        }
+
+        function backToHome() {
+            document.getElementById('videoScreen').style.display = 'none';
+            document.getElementById('timesUpOverlay').style.display = 'none';
+            document.getElementById('homeScreen').style.display = 'block';
+            stopTimer();
+            resetTimer();
+        }
+
+        function emergencyStop() {
+            stopTimer();
+            resetTimer();
+            backToHome();
+        }
+
+        // Timer functions
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                remainingTime--;
+                updateTimerDisplay();
+                
+                if (remainingTime <= 0) {
+                    stopTimer();
+                    showTimesUp();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function resetTimer() {
+            remainingTime = totalTime;
+            updateTimerDisplay();
+            document.getElementById('timesUpOverlay').style.display = 'none';
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            document.getElementById('timeRemaining').textContent = timeString;
+            document.getElementById('timerText').textContent = `${timeString} remaining`;
+            
+            // Update header color when under 10 minutes
+            const timerHeader = document.getElementById('timerHeader');
+            if (remainingTime < 600) { // 10 minutes
+                timerHeader.classList.add('warning');
+            } else {
+                timerHeader.classList.remove('warning');
+            }
+        }
+
+        function showTimesUp() {
+            document.getElementById('videoScreen').style.display = 'none';
+            document.getElementById('timesUpOverlay').style.display = 'flex';
+        }
+
+        // Parental controls
+        function openParentControls() {
+            document.getElementById('parentControls').style.display = 'flex';
+            clearPinInputs();
+        }
+
+        function closeParentControls() {
+            document.getElementById('parentControls').style.display = 'none';
+        }
+
+        function setupPinInputs() {
+            const pinInputs = document.querySelectorAll('.pin-digit');
+            pinInputs.forEach((input, index) => {
+                input.addEventListener('input', (e) => {
+                    if (e.target.value.length === 1 && index < pinInputs.length - 1) {
+                        pinInputs[index + 1].focus();
+                    }
+                });
+            });
+        }
+
+        function clearPinInputs() {
+            document.querySelectorAll('.pin-digit').forEach(input => {
+                input.value = '';
+            });
+            document.getElementById('pin1').focus();
+        }
+
+        function checkPin() {
+            const pin1 = document.getElementById('pin1').value;
+            const pin2 = document.getElementById('pin2').value;
+            const pin3 = document.getElementById('pin3').value;
+            const pin4 = document.getElementById('pin4').value;
+            const enteredPin = pin1 + pin2 + pin3 + pin4;
+            
+            if (enteredPin === parentPin) {
+                document.getElementById('pinPanel').style.display = 'none';
+                document.getElementById('settingsPanel').style.display = 'block';
+            } else {
+                alert('Incorrect PIN. Try again.');
+                clearPinInputs();
+            }
+        }
+
+        function toggleSetting(setting) {
+            // Implement toggle logic here
+            console.log('Toggled:', setting);
+        }
+
+        function updateScreenTime(value) {
+            totalTime = value * 60;
+            remainingTime = totalTime;
+            document.getElementById('screenTimeValue').textContent = value;
+            updateTimerDisplay();
+        }
+
+        // Add parent controls button event listener
+        document.querySelector('.parent-button').addEventListener('click', openParentControls);
+
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
