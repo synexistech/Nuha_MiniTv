@@ -4,7 +4,7 @@ Aplikasi mobile yang cantik dan selamat untuk Nuha Ammara menonton video pendidi
 
 ## Ciri-ciri Utama ✨
 
-### 🎥 Video Pembelajaran Ms Rachel
+### 🎥 Video Pembelajaran
 - **Huruf**: Video pembelajaran ABC dan phonetics
 - **Nombor**: Belajar kira dan nombor 1-10
 - **Warna**: Mengenal pasti warna-warna dengan Ms Rachel
@@ -50,19 +50,6 @@ Aplikasi mobile yang cantik dan selamat untuk Nuha Ammara menonton video pendidi
    - Auto-play: On/Off
    - Sound lock: On/Off
 
-## Install sebagai App 📱
-
-### Android:
-1. Buka browser (Chrome/Samsung Internet)
-2. Pergi ke website
-3. Tap menu (⋮) → "Add to Home screen"
-4. Confirm "Add"
-
-### iOS (Safari):
-1. Buka Safari
-2. Pergi ke website
-3. Tap Share button → "Add to Home Screen"
-4. Name: "Nuha's Mini TV" → "Add"
 
 ## Safety Tips 🛡️
 
